@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Sign in</title><link rel="stylesheet" href="style.css">
+<script src="config.js"></script><script src="app.js"></script></head><body><div id="m"></div><script>
+document.getElementById("m").innerHTML = header(`<main><h1>Business owner sign-in</h1>
+  <p><label>Username <input id="u" autocomplete="username"></label></p>
+  <p><label>Password <input id="p" type="password" autocomplete="current-password"></label></p>
+  <p><button id="go">Sign in</button></p><p id="e" class="err"></p></main>`);
+document.getElementById("go").onclick = async () => {
+  const r = await api({action: "login", user: document.getElementById("u").value.trim(), pass: document.getElementById("p").value});
+  if (r.ok) { try { localStorage.setItem("tok_" + D, r.token); } catch (e) {} location.href = "account.html?d=" + D; }
+  else document.getElementById("e").textContent = r.error; };
+</script></body></html>

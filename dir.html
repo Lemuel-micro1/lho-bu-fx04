@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Directory</title><link rel="stylesheet" href="style.css">
+<script src="config.js"></script><script src="app.js"></script></head><body><div id="m">Loading...</div><script>
+api({action: "dir"}).then(d => { const m = document.getElementById("m");
+  if (!d.ok) { m.textContent = d.error; return; }
+  m.innerHTML = header("<main><h1>Listings</h1><ul>" + d.listings.map(l =>
+    `<li><a href="listing.html?d=${D}&id=${l.id}">${esc(l.name)}</a>${l.status !== "active" ? " (" + esc(l.status) + ")" : ""}</li>`).join("") + "</ul></main>"); });
+</script></body></html>

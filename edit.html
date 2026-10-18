@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Edit listing</title><link rel="stylesheet" href="style.css">
+<script src="config.js"></script><script src="app.js"></script></head><body><div id="m">Loading...</div><script>
+const id = Q.get("id"), m = document.getElementById("m");
+let cur, max;
+const F = ["name", "address", "phone", "website"];
+function form(v) {
+  m.innerHTML = header(`<main><h1>Edit listing</h1>` + F.map(k =>
+    `<p><label>${k[0].toUpperCase() + k.slice(1)}<br><input id="f_${k}" size="60" value="${esc(v[k])}"></label></p>`).join("") +
+    `<p><label>Description (max ${max} characters)<br><textarea id="f_description" rows="4" cols="70" maxlength="${max}">${esc(v.description)}</textarea></label></p>
+    <h2>Opening hours</h2>${hoursEditor(v.hours)}<p><button id="rev">Review changes</button></p></main>`);
+  document.getElementById("rev").onclick = review;
+}
+function collect() {
+  const v = {}; F.forEach(k => v[k] = document.getElementById("f_" + k).value);
+  v.description = document.getElementById("f_description").value; v.hours = readHours(); return v;
+}
+function review() {
+  const v = collect(), rows = [];
+  F.concat(["description"]).forEach(k => { if (v[k] !== cur[k]) rows.push([k, esc(cur[k]), esc(v[k])]); });
+  if (JSON.stringify(v.hours) !== JSON.stringify(cur.hours)) rows.push(["hours", hoursTable(cur.hours), hoursTable(v.hours)]);
+  m.innerHTML = header(`<main><h1>Review changes</h1>` + (rows.length
+    ? "<table><tr><th>Field</th><th>Current</th><th>New</th></tr>" + rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("") + "</table>"
+    : "<p>No changes.</p>") + `<p><button id="back">Back to edit</button> <button id="pub">Publish changes</button></p><p id="r"></p></main>`);
+  document.getElementById("back").onclick = () => form(v);
+  document.getElementById("pub").onclick = async () => {
+    const r = document.getElementById("r"); r.textContent = "Publishing...";
+    const x = await api({action: "publish", token: tok() || "", id, fields: JSON.stringify(v)});
+    if (!x.ok) { r.innerHTML = `<span class="err">${esc(x.error)}</span>`; return; }
+    cur = v;
+    r.innerHTML = `<span class="ok">Published ${x.changes.length} change(s): ${x.changes.map(c => esc(c.field)).join(", ") || "none"}.</span>
+      <a href="listing.html?d=${D}&id=${id}">View public listing</a>`;
+  };
+}
+api({action: "get", id}).then(d => {
+  if (!d.ok) { m.textContent = d.error; return; }
+  if (!tok()) { location.replace("login.html?d=" + D); return; }
+  cur = d.listing; max = d.maxDesc;
+  cur = {name: cur.name, address: cur.address, phone: cur.phone, website: cur.website, description: cur.description, hours: cur.hours};
+  form(cur);
+});
+</script></body></html>

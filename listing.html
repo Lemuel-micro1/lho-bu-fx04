@@ -1,0 +1,9 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Listing</title><link rel="stylesheet" href="style.css">
+<script src="config.js"></script><script src="app.js"></script></head><body><div id="m">Loading...</div><script>
+api({action: "get", id: Q.get("id")}).then(d => { const m = document.getElementById("m");
+  if (!d.ok) { m.innerHTML = header(`<main><p class="err">${esc(d.error)}</p></main>`); return; }
+  const l = d.listing;
+  m.innerHTML = header(`<main><h1>${esc(l.name)}</h1>${l.status !== "active" ? `<p class="err">${esc(l.status)}</p>` : ""}
+    <p>${esc(l.address)}<br>${esc(l.phone)}<br>${esc(l.website)}</p><h2>About</h2><p>${esc(l.description)}</p>
+    <h2>Opening hours</h2>${hoursTable(l.hours)}</main>`); });
+</script></body></html>

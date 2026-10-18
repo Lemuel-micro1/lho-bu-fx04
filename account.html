@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>My listings</title><link rel="stylesheet" href="style.css">
+<script src="config.js"></script><script src="app.js"></script></head><body><div id="m">Loading...</div><script>
+api({action: "mine", token: tok() || ""}).then(d => { const m = document.getElementById("m");
+  if (!d.ok) { location.replace("login.html?d=" + D); return; }
+  m.innerHTML = header("<main><h1>My listings</h1><table><tr><th>Listing</th><th>Address</th><th>Status</th><th></th></tr>" +
+    d.listings.map(l => `<tr><td>${esc(l.name)}</td><td>${esc(l.address)}</td><td>${esc(l.status)}</td>
+      <td><a href="edit.html?d=${D}&id=${l.id}">Edit</a> | <a href="listing.html?d=${D}&id=${l.id}">View</a></td></tr>`).join("") + "</table></main>"); });
+</script></body></html>
